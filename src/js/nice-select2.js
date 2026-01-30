@@ -62,9 +62,9 @@ class NiceSelect {
     this.selectionList    = null;
     this.multiple         = attr(this.el, "multiple");
     this.disabled         = attr(this.el, "disabled");
-    this.#create();
+    this._create();
 
-    this.#bindElementEvents();
+    this._bindElementEvents();
   }
 
   /* 
@@ -76,7 +76,7 @@ class NiceSelect {
       $this  = e.target._niceSelect; 
     }
     
-    $this.#syncDropdown();
+    $this._syncDropdown();
   }
 
   disable() {
@@ -94,16 +94,16 @@ class NiceSelect {
   }
 
   clear() {
-    this.#resetSelectValue();
+    this._resetSelectValue();
     this.selectedOptions = [];
-    this.#renderSelectedItems();
+    this._renderSelectedItems();
     this.update();
     triggerChange(this.el);
   }
 
   destroy() {
     if(this.selectionList){
-      this.#removeSelectionList();
+      this._removeSelectionList();
     }
 
     if (this.dropdown) {
@@ -156,18 +156,18 @@ class NiceSelect {
   /*
      PRIVATE FUNCTIONS
   */
-  #create(initial=true) {
-    this.data ? this.#processData(this.data) : this.#extractData(initial);
+  _create(initial=true) {
+    this.data ? this._processData(this.data) : this._extractData(initial);
     this.el.classList.remove('hidden-select');
-    this.#renderDropdown();
+    this._renderDropdown();
 
     if(this.config.hideSelect){
       this.el.classList.add('hidden-select');
     }
-    this.#bindDropdownEvents();
+    this._bindDropdownEvents();
   }
 
-  #processData(data) {
+  _processData(data) {
     this.options = data.map((item) => ({
       data: item,
       attributes: {
@@ -178,7 +178,7 @@ class NiceSelect {
     }));
   }
 
-  #extractData(initial) {
+  _extractData(initial) {
     const options = Array.from(this.el.querySelectorAll("option,optgroup"));
     const allOptions = [];
     const selectedOptions = [];
@@ -225,7 +225,7 @@ class NiceSelect {
     this.selectedOptions  = selectedOptions;
   }
 
-  #renderDropdown() {
+  _renderDropdown() {
     const classes = [
       "nice-select",
       attr(this.el, "class") || "",
@@ -255,15 +255,15 @@ class NiceSelect {
 
     this.dropdown = this.el.nextElementSibling;
 
-    this.#renderSelectedItems();
+    this._renderSelectedItems();
 
-    this.#renderItems();
+    this._renderItems();
   }
 
   /*
     Updates the text shown in the dropdown header
   */
-  #renderSelectedItems() {
+  _renderSelectedItems() {
     if (this.multiple) {
       let selectedHtml = "";
 
@@ -298,25 +298,25 @@ class NiceSelect {
     }
   }
 
-  #renderItems() {
+  _renderItems() {
     const ul = this.dropdown.querySelector("ul");
 
     this.options.forEach((item) => {
 
       if(this.multiple && this.config.showSelectedItems){
-        this.#multipleListAdd(item);
+        this._multipleListAdd(item);
       }
 
-      ul.appendChild(this.#renderItem(item));
+      ul.appendChild(this._renderItem(item));
     });
   }
 
-  #renderItem(option) {
+  _renderItem(option) {
     const li        = document.createElement("li");
     li.textContent  = option.data.text;
 
     if (option.data.extra !== undefined) {
-      li.appendChild(this.#renderItemExtra(option.data.extra));
+      li.appendChild(this._renderItemExtra(option.data.extra));
     }
 
     if (option.attributes.optgroup) {
@@ -327,7 +327,7 @@ class NiceSelect {
       if (option.attributes.selected) classList.push("selected");
       if (option.attributes.disabled) classList.push("disabled");
       li.classList.add(...classList);
-      li.addEventListener("click", (e) => this.#onDropdownItemClicked(option, e));
+      li.addEventListener("click", (e) => this._onDropdownItemClicked(option, e));
     }
 
     option.element = li;
@@ -335,7 +335,7 @@ class NiceSelect {
     return li;
   }
 
-  #renderItemExtra(content) {
+  _renderItemExtra(content) {
     const span      = document.createElement("span");
     span.innerHTML  = content;
     addClass(span, "extra");
@@ -343,22 +343,22 @@ class NiceSelect {
     return span;
   }
 
-  #bindElementEvents(){
-    this.el.addEventListener("invalid", () => this.#triggerValidationMessage("invalid"));
-    window.addEventListener("click", e => this.#onClickedOutside(e));
+  _bindElementEvents(){
+    this.el.addEventListener("invalid", () => this._triggerValidationMessage("invalid"));
+    window.addEventListener("click", e => this._onClickedOutside(e));
     this.el.addEventListener("change", this.update);
   }
 
-  #bindDropdownEvents() {
-    this.dropdown.addEventListener("click", (e) => this.#onClicked(e));
-    this.dropdown.addEventListener("keydown", (e) => this.#onKeyPressed(e));
+  _bindDropdownEvents() {
+    this.dropdown.addEventListener("click", (e) => this._onClicked(e));
+    this.dropdown.addEventListener("keydown", (e) => this._onKeyPressed(e));
     this.dropdown.addEventListener("focusin", () => triggerFocusIn(this.el));
     this.dropdown.addEventListener("focusout", () => triggerFocusOut(this.el));
 
-    if (this.config.searchable) this.#bindSearchEvent();
+    if (this.config.searchable) this._bindSearchEvent();
   }
 
-  #bindSearchEvent() {
+  _bindSearchEvent() {
     const searchBox = this.dropdown.querySelector(".nice-select-search");
     if (searchBox) {
       searchBox.addEventListener("click", (e) => e.stopPropagation());
@@ -366,13 +366,13 @@ class NiceSelect {
     }
   }
 
-  #onClicked(e) {
+  _onClicked(e) {
     e.preventDefault();
 
     this.focus(e.target);
   }
 
-  #onDropdownItemClicked(option, e) {
+  _onDropdownItemClicked(option, e) {
     const optionEl = e.target;
 
     if (hasClass(optionEl, "disabled")) {
@@ -424,17 +424,17 @@ class NiceSelect {
       option.attributes.selected  = true;
     }
 
-    this.#renderSelectedItems();
+    this._renderSelectedItems();
 
-    this.#syncSelectValue();
+    this._syncSelectValue();
 
-    this.#syncSelectionList();
+    this._syncSelectionList();
   }
 
   /*
     Syncs the original select element with the dropdown
   */
-  #syncSelectValue() {
+  _syncSelectValue() {
     const select    = this.el;
 
     if (this.selectedOptions.length > 0) {
@@ -481,7 +481,7 @@ class NiceSelect {
     select.addEventListener("change", this.update);
   }
 
-  #resetSelectValue() {
+  _resetSelectValue() {
     if (this.multiple) {
       const select = this.el;
       this.selectedOptions.forEach((item) => {
@@ -500,17 +500,17 @@ class NiceSelect {
   /*
     Syncs the dropdown with the select
   */
-  #syncDropdown(){
+  _syncDropdown(){
     if (this.dropdown) {
       const open = hasClass(this.dropdown, "open");
 
-      this.#removeSelectionList();
+      this._removeSelectionList();
 
       this.dropdown.remove();
 
       this.data   = null;
 
-      this.#create(false);
+      this._create(false);
 
       if (open) {
         triggerClick(this.dropdown);
@@ -523,27 +523,27 @@ class NiceSelect {
   /*
     Syncs the selected list with the dropdown
   */
-  #syncSelectionList(){
+  _syncSelectionList(){
     if(!this.config.showSelectedItems){
       return;
     }
 
-    this.#removeSelectionList();
+    this._removeSelectionList();
 
     // Update multiple list
     this.selectedOptions.forEach( item =>{
-      this.#multipleListAdd(item);
+      this._multipleListAdd(item);
     });
   }
 
-  #onClickedOutside(e) {
+  _onClickedOutside(e) {
     if (!this.dropdown.contains(e.target)) {
       removeClass(this.dropdown, "open");
       triggerModalClose(this.el);
     }
   }
 
-  #onKeyPressed(e) {
+  _onKeyPressed(e) {
     const focusedOption = this.dropdown.querySelector(".focus");
     const isOpen        = hasClass(this.dropdown, "open");
 
@@ -564,7 +564,7 @@ class NiceSelect {
       if (!isOpen) {
         triggerClick(this.dropdown);
       } else {
-        const prev = this.#findPrev(focusedOption);
+        const prev = this._findPrev(focusedOption);
         if (prev) {
           if (focusedOption) removeClass(focusedOption, "focus");
           addClass(prev, "focus");
@@ -598,7 +598,7 @@ class NiceSelect {
     return null;
   }
 
-  #findPrev(el) {
+  _findPrev(el) {
     let prevEl = el
       ? el.previousElementSibling
       : this.dropdown.querySelector(".list .option:last-child");
@@ -634,7 +634,7 @@ class NiceSelect {
     if (firstEl) addClass(firstEl, "focus");
   }
 
-  #triggerValidationMessage(type) {
+  _triggerValidationMessage(type) {
     if (type === "invalid") {
       addClass(this.dropdown, "invalid");
       removeClass(this.dropdown, "valid");
@@ -644,14 +644,14 @@ class NiceSelect {
     }
   }
 
-  #removeSelectionList(){
+  _removeSelectionList(){
     if(this.selectionList != null){
       this.selectionList.remove();
       this.selectionList  = null;
     }
   }
 
-  #multipleListAdd(option) {
+  _multipleListAdd(option) {
     if(!this.multiple || option.data.disabled || option.data.value == "" || !option.attributes.selected){
       return;
     }
@@ -697,10 +697,10 @@ class NiceSelect {
     this.selectionList.appendChild(li);
 
     // Add listener
-    li.querySelectorAll('.remove-select-selection').forEach(el=> el.addEventListener("click", this.#multipleListRemove.bind(this)));
+    li.querySelectorAll('.remove-select-selection').forEach(el=> el.addEventListener("click", this._multipleListRemove.bind(this)));
   }
 
-  #multipleListRemove(target) {
+  _multipleListRemove(target) {
 
     if(this.selectionList == null){
       return;
