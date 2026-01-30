@@ -362,7 +362,7 @@ class NiceSelect {
     const searchBox = this.dropdown.querySelector(".nice-select-search");
     if (searchBox) {
       searchBox.addEventListener("click", (e) => e.stopPropagation());
-      searchBox.addEventListener("input", (e) => this.#onSearchChanged(e));
+      searchBox.addEventListener("input", (e) => this._onSearchChanged(e));
     }
   }
 
@@ -611,7 +611,7 @@ class NiceSelect {
     return null;
   }
 
-  #onSearchChanged(e) {
+  _onSearchChanged(e) {
     const text = e.target.value.toLowerCase();
 
     if (text === "") {
