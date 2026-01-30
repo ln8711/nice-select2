@@ -553,7 +553,7 @@ class NiceSelect {
       if (!isOpen) {
         triggerClick(this.dropdown);
       } else {
-        const next = this.#findNext(focusedOption);
+        const next = this._findNext(focusedOption);
         if (next) {
           if (focusedOption) removeClass(focusedOption, "focus");
           addClass(next, "focus");
@@ -585,7 +585,7 @@ class NiceSelect {
     return false;
   }
 
-  #findNext(el) {
+  _findNext(el) {
     let nextEl = el
       ? el.nextElementSibling
       : this.dropdown.querySelector(".list .option");
@@ -629,7 +629,7 @@ class NiceSelect {
       .querySelectorAll(".focus")
       .forEach((item) => removeClass(item, "focus"));
 
-    const firstEl = this.#findNext(null);
+    const firstEl = this._findNext(null);
 
     if (firstEl) addClass(firstEl, "focus");
   }
