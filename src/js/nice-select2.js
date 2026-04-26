@@ -613,14 +613,14 @@ class NiceSelect {
 
   #onSearchChanged(e) {
     let text = e.target.value.toLowerCase();
-    text = convertVietnamese(text);
+    text = this.convertVietnamese(text);
 
     if (text === "") {
       this.options.forEach((item) => (item.element.style.display = ""));
     } else if (hasClass(this.dropdown, "open")) {
       const matchReg = new RegExp(text);
       this.options.forEach((item) => {
-        item.element.style.display = matchReg.test(convertVietnamese(item.data.text.toLowerCase()))
+        item.element.style.display = matchReg.test(this.convertVietnamese(item.data.text.toLowerCase()))
           ? ""
           : "none";
       });
