@@ -612,14 +612,15 @@ class NiceSelect {
   }
 
   #onSearchChanged(e) {
-    const text = e.target.value.toLowerCase();
+    let text = e.target.value.toLowerCase();
+    text = convertVietnamese(text);
 
     if (text === "") {
       this.options.forEach((item) => (item.element.style.display = ""));
     } else if (hasClass(this.dropdown, "open")) {
       const matchReg = new RegExp(text);
       this.options.forEach((item) => {
-        item.element.style.display = matchReg.test(item.data.text.toLowerCase())
+        item.element.style.display = matchReg.test(convertVietnamese(item.data.text.toLowerCase()))
           ? ""
           : "none";
       });
@@ -725,6 +726,14 @@ class NiceSelect {
       el.click();
     }
   }
+
+  convertVietnamese(str) {
+    return str
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "D");
+  };
 }
 
 export default NiceSelect;
