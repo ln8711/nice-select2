@@ -44,6 +44,7 @@
     ".": {
       "import": "./dist/js/nice-select2.esm.js",
       "require": "./dist/js/nice-select2.js"
-    }
+    },
+    "./dist/*": "./dist/*"
   }
 }

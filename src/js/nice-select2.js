@@ -614,7 +614,7 @@ class NiceSelect {
   }
 
   onSearchChanged(e) {
-    const text = e.target.value.toLowerCase();
+    let text = e.target.value.toLowerCase();
     text = this.convertVietnamese(text);
 
     if (text === "") {

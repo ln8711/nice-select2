@@ -5,7 +5,7 @@ module.exports = [
   // UMD build
   {
     entry: {
-      "nice-select2": "./src/js/nice-select2.js",
+      "nice-select2": ["./src/scss/nice-select2.scss", "./src/js/nice-select2.js"],
       style: "./src/scss/style.scss",
     },
     output: {
