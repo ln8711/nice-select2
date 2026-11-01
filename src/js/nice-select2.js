@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify';
+
 const triggerEvent      = (el, type, init = {}) => {
   let EventConstructor;
   if (type === "click") {
@@ -196,7 +198,7 @@ class NiceSelect {
       if (item.tagName === "OPTGROUP") {
         itemData = { text: item.label, value: "optgroup" };
       } else {
-        const text = item.dataset.display ?? item.innerText;
+        const text = DOMPurify.sanitize(item.dataset.display ?? item.innerText, { USE_PROFILES: { html: true } });
         itemData = {
           text,
           value: item.value,
@@ -290,7 +292,7 @@ class NiceSelect {
         selectedHtml = `${this.selectedOptions.length} ${this.selectedtext}`;
       }
 
-      this.dropdown.querySelector(".multiple-options").innerHTML = selectedHtml;
+      this.dropdown.querySelector(".multiple-options").innerHTML = DOMPurify.sanitize(selectedHtml, { USE_PROFILES: { html: true } });
     } else {
       const text = this.selectedOptions.length > 0 ? this.selectedOptions[0].data.text : this.placeholder;
 
@@ -312,8 +314,8 @@ class NiceSelect {
   }
 
   #renderItem(option) {
-    const li        = document.createElement("li");
-    li.textContent  = option.data.text;
+    const li      = document.createElement("li");
+    li.innerHTML  = DOMPurify.sanitize(option.data.text, { USE_PROFILES: { html: true } });
 
     if (option.data.extra !== undefined) {
       li.appendChild(this.#renderItemExtra(option.data.extra));
@@ -337,7 +339,7 @@ class NiceSelect {
 
   #renderItemExtra(content) {
     const span      = document.createElement("span");
-    span.innerHTML  = content;
+    span.innerHTML  = DOMPurify.sanitize(content, { USE_PROFILES: { html: true } });
     addClass(span, "extra");
 
     return span;
@@ -362,7 +364,7 @@ class NiceSelect {
     const searchBox = this.dropdown.querySelector(".nice-select-search");
     if (searchBox) {
       searchBox.addEventListener("click", (e) => e.stopPropagation());
-      searchBox.addEventListener("input", (e) => this.#onSearchChanged(e));
+      searchBox.addEventListener("input", (e) => this.onSearchChanged(e));
     }
   }
 
@@ -373,7 +375,7 @@ class NiceSelect {
   }
 
   #onDropdownItemClicked(option, e) {
-    const optionEl = e.target;
+    const optionEl = e.currentTarget;
 
     if (hasClass(optionEl, "disabled")) {
       return;
@@ -547,9 +549,9 @@ class NiceSelect {
     const focusedOption = this.dropdown.querySelector(".focus");
     const isOpen        = hasClass(this.dropdown, "open");
 
-    if (e.keyCode === 13) {
+    if (e.key === "Enter") {
       isOpen ? triggerClick(focusedOption) : triggerClick(this.dropdown);
-    } else if (e.keyCode === 40) {
+    } else if (e.key === "ArrowDown") {
       if (!isOpen) {
         triggerClick(this.dropdown);
       } else {
@@ -560,7 +562,7 @@ class NiceSelect {
         }
       }
       e.preventDefault();
-    } else if (e.keyCode === 38) {
+    } else if (e.key === "ArrowUp") {
       if (!isOpen) {
         triggerClick(this.dropdown);
       } else {
@@ -571,9 +573,9 @@ class NiceSelect {
         }
       }
       e.preventDefault();
-    } else if (e.keyCode === 27 && isOpen) {
+    } else if (e.key === "Escape" && isOpen) {
       triggerClick(this.dropdown);
-    } else if (e.keyCode === 32 && isOpen) {
+    } else if ((e.key === " " || e.key === "Spacebar") && isOpen) {
       return false;
     }
 
@@ -611,16 +613,15 @@ class NiceSelect {
     return null;
   }
 
-  #onSearchChanged(e) {
-    let text = e.target.value.toLowerCase();
+  onSearchChanged(e) {
+    const text = e.target.value.toLowerCase();
     text = this.convertVietnamese(text);
 
     if (text === "") {
       this.options.forEach((item) => (item.element.style.display = ""));
     } else if (hasClass(this.dropdown, "open")) {
-      const matchReg = new RegExp(text);
-      this.options.forEach((item) => {
-        item.element.style.display = matchReg.test(this.convertVietnamese(item.data.text.toLowerCase()))
+      this.options.forEach((item) => {        
+        item.element.style.display = this.convertVietnamese(item.data.text.toLowerCase()).includes(text)
           ? ""
           : "none";
       });
